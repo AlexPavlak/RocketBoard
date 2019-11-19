@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.View;
 import java.util.ArrayList;
 
@@ -23,6 +24,9 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.Set;
 import java.util.Date;
@@ -32,9 +36,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 
-public class InFlightActivity extends AppCompatActivity {
+import static android.graphics.Color.GREEN;
+import static android.graphics.Color.RED;
 
-    private RecyclerView recyclerView;
+public class InFlightActivity extends AppCompatActivity {
 
     private RecyclerView.Adapter fAdapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -43,12 +48,30 @@ public class InFlightActivity extends AppCompatActivity {
     // Debugging
     private static final String TAG = "BluetoothChatService";
 
+    //Text Fields
+    private TextView m_accelView;
+    private TextView m_velocityView;
+    private TextView m_altitudeView;
+    private TextView m_maxAltitudeView;
+    private TextView m_maxVelocityView;
+    private TextView m_BtStatusView;
+    private TextView m_recordStatusView;
+
+    private Button m_StartBtn;
+    private Button m_StopBtn;
+
+
+    boolean recording;
     BluetoothAdapter mBluetoothAdapter;
     BluetoothSocket mmSocket;
     BluetoothDevice mmDevice;
     OutputStream mmOutputStream;
     InputStream mmInputStream;
     Thread workerThread;
+    float currentVelocity;
+    float initialVelocity;
+    float maxVelocity;
+    float maxAltitude;
     byte[] readBuffer;
     int readBufferPosition;
     int counter;
@@ -61,6 +84,39 @@ public class InFlightActivity extends AppCompatActivity {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_in_flight);
+        m_accelView = (TextView) findViewById(R.id.tv_Accel);
+        m_velocityView = (TextView) findViewById(R.id.tv_velocity);
+        m_altitudeView = (TextView) findViewById(R.id.tv_altitude);
+        m_maxAltitudeView = (TextView) findViewById(R.id.tv_maxAltitude);
+        m_maxVelocityView = (TextView) findViewById(R.id.tv_maxSPeed);
+        m_BtStatusView = (TextView) findViewById(R.id.tv_BlueTooth);
+        m_recordStatusView= (TextView) findViewById(R.id.tv_record);
+        currentVelocity = 0;
+        initialVelocity = 0;
+        maxVelocity = 0;
+        maxAltitude = 0;
+        recording = false;
+
+        m_StartBtn = (Button) findViewById(R.id.btn_record);
+        m_StartBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                recording = true;
+                m_recordStatusView.setText("Recording");
+                m_recordStatusView.setTextColor(GREEN);
+            }
+        });
+
+        m_StopBtn = (Button) findViewById(R.id.btn_stopRecord);
+        m_StopBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                recording = false;
+                m_recordStatusView.setText("Not Recording");
+                m_recordStatusView.setTextColor(RED);
+            }
+        });
+
         getData();
         Button btButton = (Button)findViewById(R.id.BlueToothbtn);
         btButton.setOnClickListener(new View.OnClickListener()
@@ -86,26 +142,6 @@ public class InFlightActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
-        Thread updateText = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    while(!isInterrupted()) {
-                        Thread.sleep(1000);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateData();
-                            }
-                        });
-                    }
-                } catch(InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        updateText.start();
     }
 
     void findBT()
@@ -147,6 +183,8 @@ public class InFlightActivity extends AppCompatActivity {
         mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
         mmSocket.connect();
         Log.d("BT","Bluetooth Opened");
+        m_BtStatusView.setTextColor(GREEN);
+        m_BtStatusView.setText("Blue Tooth Connected");
         mmOutputStream = mmSocket.getOutputStream();
         mmInputStream = mmSocket.getInputStream();
 
@@ -208,6 +246,7 @@ public class InFlightActivity extends AppCompatActivity {
                     {
                         stopWorker = true;
                     }
+
                 }
             }
         });
@@ -218,60 +257,41 @@ public class InFlightActivity extends AppCompatActivity {
 
 
     private void getData() {
-        dataTypes.add("Alt:");
-        fData.add("7");
 
-        dataTypes.add("Vel:");
-        fData.add("7");
-
-        dataTypes.add("Thrust:");
-        fData.add("7");
-
-        dataTypes.add("Swag:");
-        fData.add("7");
-
-        initRecyclerView();
     }
 
     private void writeToFile(String data){
-        try{
-            outStream.write(data.getBytes());
-            outStream.write("\n".getBytes());
-        }catch (Exception e){
-            e.printStackTrace();
+
+        if(recording) {
+            DataPacket packet = new DataPacket(data);
+           updateData(packet);
+            try {
+                outStream.write(packet.toString().getBytes());
+                outStream.write("\n".getBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }
 
-    private void initRecyclerView() {
-        RecyclerView recyclerView = findViewById(R.id.in_flight_recycler);
-        inFlightAdapter adapter = new inFlightAdapter(dataTypes, fData);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    }
 
-    private void updateData() {
-        dataTypes.clear();
-        fData.clear();
+    private void updateData(DataPacket packet) {
+        m_altitudeView.setText("Altitude: " + packet.getAlt_altitude());
 
+        currentVelocity = packet.getSpeed();
+        m_velocityView.setText("Velocity: " + currentVelocity);
+        if(currentVelocity > maxVelocity){
+            maxVelocity = currentVelocity;
+            m_maxVelocityView.setText("Max Velocity: " + maxVelocity);
+        }
+        initialVelocity = currentVelocity;
 
-        dataTypes.add("Alt:");
-        fData.add("8");
+        if(packet.getAlt_altitude() > maxAltitude){
+            maxAltitude = packet.getAlt_altitude();
+            m_maxAltitudeView.setText("Max Altitude: " + maxAltitude);
+        }
 
-        dataTypes.add("Vel:");
-        fData.add("8");
-
-        dataTypes.add("Thrust:");
-        fData.add("8");
-
-        dataTypes.add("Swag:");
-        fData.add("8");
-
-        RecyclerView recyclerView = findViewById(R.id.in_flight_recycler);
-        inFlightAdapter adapter = new inFlightAdapter(dataTypes, fData);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter.notifyDataSetChanged();
     }
 
     //go to map

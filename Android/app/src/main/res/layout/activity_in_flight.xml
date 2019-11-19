@@ -3,30 +3,30 @@
 
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativeLayout"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".InFlightActivity">
-    
-    <androidx.recyclerview.widget.RecyclerView
 
-        android:id="@+id/in_flight_recycler"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/btn_stopRecord"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Stop Recording"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_record" />
 
     <Button
         android:id="@+id/BlueToothbtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="184dp"
         android:text="btButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/in_flight_recycler" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_maxAltitude" />
 
 
     <Button
@@ -38,6 +38,82 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/BlueToothbtn" />
+
+    <Button
+        android:id="@+id/btn_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Recording"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/go_to_maps" />
+
+    <TextView
+        android:id="@+id/tv_Accel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Acceleration: "
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_altitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Altitude: "
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_Accel" />
+
+    <TextView
+        android:id="@+id/tv_maxSPeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Max Velocity: "
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_velocity" />
+
+    <TextView
+        android:id="@+id/tv_maxAltitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Max Altitude: "
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_maxSPeed" />
+
+    <TextView
+        android:id="@+id/tv_velocity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Velocity:"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_altitude" />
+
+
+
+    <TextView
+        android:id="@+id/tv_BlueTooth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BlueTooth Not Connected"
+        android:textColor="#F44336"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Not Recording"
+        android:textColor="#F44336"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_BlueTooth" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

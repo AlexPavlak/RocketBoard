@@ -51,6 +51,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.File;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         SharedPreferences.OnSharedPreferenceChangeListener{
 
@@ -70,12 +72,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     // Tracks the bound state of the service.
     private boolean mBound = false;
 
+    private String fileName;
+
     private static final int DEFAULT_ZOOM = 18;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        Intent intent = getIntent();
+
+        if(intent.hasExtra("FileName")){
+            fileName = intent.getStringExtra("FileName");
+        }
+
+        File file = new File(fileName);
 
         myReceiver = new MyReceiver();
 
