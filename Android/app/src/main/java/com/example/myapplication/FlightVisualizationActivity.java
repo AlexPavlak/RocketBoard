@@ -1,6 +1,8 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -27,7 +29,14 @@ public class FlightVisualizationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flight_visualization);
 
-        File fileName = (File) getIntent().getExtras().get("FileName");
+
+        Intent intent = getIntent();
+        String fn = intent.getStringExtra("FileName");
+
+
+        File fileName = new File(getFilesDir() + "/"+fn);
+
+
         flightPath = findViewById(R.id.flightPath);
         ArrayList<Entry> entries = new ArrayList<>();
         ArrayList<DataPacket> packets = new ArrayList<>();
@@ -35,9 +44,11 @@ public class FlightVisualizationActivity extends AppCompatActivity {
         try{
             BufferedReader reader = new BufferedReader(new FileReader(fileName));
             line = reader.readLine();
+            Log.d("FileLine", line);
 
             while(line != null) {
                 DataPacket dataPacket = new DataPacket(line);
+                Log.d("FileLine", dataPacket.toString());
                 packets.add(dataPacket);
                 line = reader.readLine();
             }
@@ -47,9 +58,10 @@ public class FlightVisualizationActivity extends AppCompatActivity {
 
         //Make packet of each line, stash them somehow like in an array, use the getters
         float x = 0, y;
-        for(int i = 0; i < entries.size(); i++) {
-            y = packets.get(i).getAlt_altitude();
+        for(int i = 0; i < packets.size(); i++) {
+            y = packets.get(i).getSpeed();
             entries.add(new Entry(x, y));
+            Log.d("Entries", entries.get(i).toString());
             x += 10;
         }
 

@@ -28,13 +28,12 @@ public class DataPacket {
     public DataPacket(String input){
         String values[] = input.split(",");
 
-        GPS_time          = values[1];
-        GPS_latitude      = (Float.valueOf(values[3])).floatValue();
-        GPS_northSouth    = values[4].charAt(0);
-        GPS_longitude     = (Float.valueOf(values[5])).floatValue();
-        GPS_eastWest      = values[6].charAt(0);
-        Alt_altitude      = (Float.valueOf(values[22])).floatValue();
-        speed             = (Float.valueOf(values[7])).floatValue();
+        GPS_time          = values[0];
+        GPS_latitude      = (Float.valueOf(values[1])).floatValue();
+        GPS_northSouth    = values[2].charAt(0);
+        GPS_longitude     = (Float.valueOf(values[3])).floatValue();
+        GPS_eastWest      = values[4].charAt(0);
+        speed             = (Float.valueOf(values[5])).floatValue();
 
 
 
